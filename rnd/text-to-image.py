@@ -17,7 +17,7 @@ from diffusers import StableDiffusionPipeline
 # model_path = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/juggernautXL_juggXIByRundiffusion.safetensors"
 model_path = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/v1-5-pruned-emaonly-fp16.safetensors"
 prompt = "photorealistic robot with yellow painted metal"
-output_image = "E:/robot_001.png"
+output_image = "E:/image_001.png"
 
 pipe = StableDiffusionPipeline.from_single_file(
     model_path,
@@ -26,6 +26,7 @@ pipe = StableDiffusionPipeline.from_single_file(
 )
 
 pipe.to("cuda")
+torch_generator = torch.Generator(device="cuda").manual_seed(0)
 
-image = pipe(prompt,  num_inference_steps=4).images[0]
+image = pipe(prompt,  num_inference_steps=5, generator=torch_generator).images[0]
 image.save(output_image)
