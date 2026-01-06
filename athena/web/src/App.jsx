@@ -26,7 +26,6 @@ function App() {
         {status === 'rendering' && <div className="spinner">Rendering...</div>}
       </div>
       <div className="controls">
-        <h1>Athena</h1>
         <label>
           Prompt
           <textarea value={prompt} onChange={e => setPrompt(e.target.value)} />

@@ -26,7 +26,7 @@ def render_image(req: RenderRequest):
     filename = f"{uuid.uuid4()}.png"
     output_path = IMAGES_DIR / filename
     render(req.prompt, req.steps, req.seed, str(output_path))
-    return {"image_url": f"/images/{filename}"}
+    return {"image_url": str(output_path)}
 
 
 # Serve generated images
