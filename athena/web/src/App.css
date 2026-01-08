@@ -91,3 +91,11 @@ body {
 .controls button:hover:not(:disabled) {
   background: #3a8eef;
 }
+
+.status-line {
+  margin-top: auto;
+  padding-top: 16px;
+  font-size: 0.75rem;
+  color: #888;
+  word-break: break-all;
+}

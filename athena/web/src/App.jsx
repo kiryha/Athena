@@ -5,10 +5,12 @@ function App() {
   const [steps, setSteps] = useState(20)
   const [seed, setSeed] = useState(42)
   const [imageUrl, setImageUrl] = useState(null)
-  const [status, setStatus] = useState('idle')
+  const [statusText, setStatusText] = useState('')
+  const [isRendering, setIsRendering] = useState(false)
 
   const handleRender = async () => {
-    setStatus('rendering')
+    setIsRendering(true)
+    setStatusText('Rendering...')
     const response = await fetch('/render', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -16,14 +18,14 @@ function App() {
     })
     const data = await response.json()
     setImageUrl(data.image_url)
-    setStatus('done')
+    setStatusText(`Image rendered: ${data.image_path}`)
+    setIsRendering(false)
   }
 
   return (
     <div className="app">
       <div className="image-panel">
         {imageUrl && <img src={imageUrl} alt="Generated" />}
-        {status === 'rendering' && <div className="spinner">Rendering...</div>}
       </div>
       <div className="controls">
         <label>
@@ -38,9 +40,10 @@ function App() {
           Seed
           <input type="number" value={seed} onChange={e => setSeed(Number(e.target.value))} />
         </label>
-        <button onClick={handleRender} disabled={status === 'rendering'}>
-          {status === 'rendering' ? 'Rendering...' : 'Render'}
+        <button onClick={handleRender} disabled={isRendering}>
+          Render
         </button>
+        <div className="status-line">{statusText}</div>
       </div>
     </div>
   )

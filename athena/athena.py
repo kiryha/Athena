@@ -2,7 +2,7 @@
 FastAPI backend for Athena image generator
 """
 
-import uuid
+import secrets
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -23,10 +23,10 @@ class RenderRequest(BaseModel):
 
 @app.post("/render")
 def handle_render(req: RenderRequest):
-    filename = f"{uuid.uuid4()}.png"
+    filename = f"{secrets.token_urlsafe(6).upper()}.png"
     output_path = IMAGES_DIR / filename
     render_image(req.prompt, req.steps, req.seed, str(output_path))
-    return {"image_url": f"/images/{filename}"}
+    return {"image_url": f"/images/{filename}", "image_path": str(output_path)}
 
 
 # Serve generated images
