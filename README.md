@@ -16,8 +16,7 @@ This curated learning path will take you from foundational concepts in neural ne
 
 
 ## 2. Transformers & Text Encoding
-### Illustrated Transformer
-- https://jalammar.github.io/illustrated-transformer/
+[Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
 
 ### CLIP (Contrastive Language–Image Pretraining)
 - [**Open AI CLIP**](https://openai.com/research/clip)

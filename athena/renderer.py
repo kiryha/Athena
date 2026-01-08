@@ -15,7 +15,7 @@ pipe = StableDiffusionPipeline.from_single_file(
 pipe.to("cuda")
 
 
-def render(prompt: str, steps: int, seed: int, output_path: str):
+def render_image(prompt: str, steps: int, seed: int, output_path: str):
     generator = torch.Generator(device="cuda").manual_seed(seed)
     image = pipe(prompt, num_inference_steps=steps, generator=generator).images[0]
     image.save(output_path)

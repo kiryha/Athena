@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from renderer import render
+from renderer import render_image
 
 app = FastAPI()
 
@@ -22,11 +22,11 @@ class RenderRequest(BaseModel):
 
 
 @app.post("/render")
-def render_image(req: RenderRequest):
+def handle_render(req: RenderRequest):
     filename = f"{uuid.uuid4()}.png"
     output_path = IMAGES_DIR / filename
-    render(req.prompt, req.steps, req.seed, str(output_path))
-    return {"image_url": str(output_path)}
+    render_image(req.prompt, req.steps, req.seed, str(output_path))
+    return {"image_url": f"/images/{filename}"}
 
 
 # Serve generated images
