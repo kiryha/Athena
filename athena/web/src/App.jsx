@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 function App() {
-  const [prompt, setPrompt] = useState('a beautiful sunset over mountains')
+  const [prompt, setPrompt] = useState('Red apple on a white background')
   const [steps, setSteps] = useState(20)
   const [seed, setSeed] = useState(42)
   const [imageUrl, setImageUrl] = useState(null)

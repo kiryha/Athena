@@ -13,6 +13,7 @@ from renderer import render_image
 app = FastAPI()
 
 IMAGES_DIR = Path("E:/images")
+FRONTEND_DIR = Path(__file__).parent / "web" / "dist"
 
 
 class RenderRequest(BaseModel):
@@ -31,8 +32,5 @@ def handle_render(req: RenderRequest):
 
 # Serve generated images
 app.mount("/images", StaticFiles(directory=str(IMAGES_DIR)), name="images")
-
 # Serve React frontend (built files)
-FRONTEND_DIR = Path(__file__).parent / "web" / "dist"
-if FRONTEND_DIR.exists():
-    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
