@@ -18,7 +18,7 @@ function App() {
     })
     const data = await response.json()
     setImageUrl(data.image_url)
-    setStatusText(`Image rendered: ${data.image_path}`)
+    setStatusText(`${data.render_time} >> ${data.image_path}`)
     setIsRendering(false)
   }
 

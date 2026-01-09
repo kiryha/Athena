@@ -7,6 +7,7 @@ Image renderer using Stable Diffusion
 # Use StableDiffusionPipeline for SD 1.5 models (v1-5-pruned-emaonly-fp16.safetensors)
 """
 
+import time
 import torch
 from diffusers import StableDiffusionPipeline, StableDiffusionControlNetPipeline, ControlNetModel
 from PIL import Image
@@ -31,8 +32,13 @@ controlnet_pipeline.to("cuda")
 def render_image(prompt: str, steps: int, seed: int, output_path: str,
                  control_image_path: str = None, controlnet_weight: float = 1.0):
     
+    # Mesure render time
+    start_time = time.perf_counter()
+
+    # Define seed
     generator = torch.Generator(device="cuda").manual_seed(seed)
     
+    # Render image
     if control_image_path:
         control_image = Image.open(control_image_path).convert("RGB")
         image = controlnet_pipeline(prompt, image=control_image, num_inference_steps=steps,
@@ -41,5 +47,11 @@ def render_image(prompt: str, steps: int, seed: int, output_path: str,
     else:
         image = pipeline(prompt, num_inference_steps=steps, generator=generator, 
                         width=width, height=height).images[0]
-    
+    # Save image
     image.save(output_path)
+    
+    # Mesure render time and format as MM:SS
+    render_time = time.perf_counter() - start_time
+    minutes = int(render_time // 60)
+    seconds = int(render_time % 60)
+    return f"{minutes:02d}:{seconds:02d}"
