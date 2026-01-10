@@ -9,23 +9,26 @@ Image renderer using Stable Diffusion
 
 import time
 import torch
-from diffusers import StableDiffusionPipeline, StableDiffusionControlNetPipeline, ControlNetModel
+from diffusers import StableDiffusionPipeline, StableDiffusionXLPipeline, StableDiffusionControlNetPipeline, StableDiffusionXLControlNetPipeline, ControlNetModel
 from PIL import Image
 
-MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/v1-5-pruned-emaonly-fp16.safetensors"
-CONTROLNET_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/controlnet/control_v11p_sd15_canny_fp16.safetensors"
+# MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/v1-5-pruned-emaonly-fp16.safetensors" # SD1.5
+MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/juggernautXL_juggXIByRundiffusion.safetensors" # SDXL
+
+# CONTROLNET_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/controlnet/control_v11p_sd15_canny_fp16.safetensors" # SD1.
+CONTROLNET_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/controlnet/diffusion_pytorch_model_canny.fp16.safetensors" # SDXL
 
 width=512
 height=512
 
 
 # Load MAIN pipeline
-pipeline = StableDiffusionPipeline.from_single_file(MODEL_PATH, torch_dtype=torch.float16)
+pipeline = StableDiffusionXLPipeline.from_single_file(MODEL_PATH, torch_dtype=torch.float16)
 pipeline.to("cuda")
 
 # Load ControlNet pipeline
 controlnet = ControlNetModel.from_single_file(CONTROLNET_PATH, torch_dtype=torch.float16)
-controlnet_pipeline = StableDiffusionControlNetPipeline.from_single_file(MODEL_PATH, controlnet=controlnet, torch_dtype=torch.float16)
+controlnet_pipeline = StableDiffusionXLControlNetPipeline.from_single_file(MODEL_PATH, controlnet=controlnet, torch_dtype=torch.float16)
 controlnet_pipeline.to("cuda")
 
 
