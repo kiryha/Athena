@@ -20,6 +20,8 @@ class RenderRequest(BaseModel):
     prompt: str
     steps: int = 30
     seed: int = 0
+    cfg: float = 2.1
+    controlnet_strength: float = 0.8
 
 
 @app.post("/render")
@@ -31,7 +33,7 @@ def handle_render(req: RenderRequest):
     output_path = IMAGES_DIR / filename
 
     # Run render
-    render_time = render_image(req.prompt, req.steps, req.seed, str(output_path), control_image_path)
+    render_time = render_image(req.prompt, req.steps, req.seed, req.cfg, req.controlnet_strength, str(output_path), control_image_path)
 
     return {"image_url": f"/images/{filename}", "image_path": str(output_path), "render_time": render_time}
 

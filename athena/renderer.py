@@ -38,27 +38,25 @@ controlnet_pipeline.scheduler = DPMSolverMultistepScheduler.from_config(
 controlnet_pipeline.to("cuda")
 
 
-def render_image(prompt: str, steps: int, seed: int, output_path: str,
-                 control_image_path: str = None):
+def render_image(prompt: str, steps: int, seed: int, cfg: float, controlnet_strength: float,
+                 output_path: str, control_image_path: str = None):
     
     # Mesure render time
     start_time = time.perf_counter()
 
     # Define seed
     generator = torch.Generator(device="cuda").manual_seed(seed)
-    controlnet_weight = 0.82
-    guidance_scale = 2.1  # CFG
     
     # Render image
     if control_image_path:
         control_image = Image.open(control_image_path).convert("RGB")
         image = controlnet_pipeline(prompt, image=control_image, num_inference_steps=steps,
-                     generator=generator, controlnet_conditioning_scale=controlnet_weight, 
-                     guidance_scale=guidance_scale,
+                     generator=generator, controlnet_conditioning_scale=controlnet_strength, 
+                     guidance_scale=cfg,
                      width=width, height=height).images[0]
     else:
         image = pipeline(prompt, num_inference_steps=steps, generator=generator, 
-                        guidance_scale=guidance_scale,
+                        guidance_scale=cfg,
                         width=width, height=height).images[0]
     # Save image
     image.save(output_path)
