@@ -1,22 +1,21 @@
 # Athena Pipeline: Research and Developmnet
-AI content creation pipeline
+Generative AI content creation pipeline, images and video.
 
-Re imagine ComfyUI. Video generation models API. 
 
 # Learning: Stable Diffusion & Diffusion Models
 
 This curated learning path will take you from foundational concepts in neural networks and transformers, through the internals of diffusion models, up to practical model inference and building systems like **ComfyUI**.
 
-## 1. Core Fundamentals
+## 1. Core Fundamentals:Neural Networks & Deep Learning
 
-### Neural Networks & Deep Learning
 - [**Neural Networks Basics**](https://www.deeplearningbook.org/)
 - [**Deep Learning**](https://www.coursera.org/learn/neural-networks-deep-learning/)
 - [**Backpropagation Intuition**](https://colah.github.io/posts/2015-08-Backprop/)
 
 
 ## 2. Transformers & Text Encoding
-[Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
+### Transformer
+- [Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
 
 ### CLIP (Contrastive Language–Image Pretraining)
 - [**Open AI CLIP**](https://openai.com/research/clip)
@@ -24,7 +23,6 @@ This curated learning path will take you from foundational concepts in neural ne
 
 ### Tokenization
 - [**Hugging Face Tokenizers**](https://huggingface.co/docs/tokenizers/)
-
 
 ## 3. Diffusion Models — Theory & Concepts
 ### Diffusion Fundamentals
@@ -50,7 +48,6 @@ This curated learning path will take you from foundational concepts in neural ne
 ### CFG (Classifier-Free Guidance)
 - [CFG intuition + math](https://huggingface.co/blog/diffusion-guidance)
   
-
 ## 5. Practical Inference & Libraries
 ### Hugging Face Diffusers
 - [Official Documentation](https://huggingface.co/docs/diffusers/)
