@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
 function App() {
-  const [prompt, setPrompt] = useState('Red apple on a white background')
-  const [steps, setSteps] = useState(20)
-  const [seed, setSeed] = useState(42)
+  const [prompt, setPrompt] = useState('Photorealistic portrait of a young athletic man. Photorealistic skin, wrinkles, sss, hairs, aging. Big face with teeth, nice smile, mouth of smile. Rough basic denim trousers. Lether shoes.')
+  const [steps, setSteps] = useState(4)
+  const [seed, setSeed] = useState(2)
   const [imageUrl, setImageUrl] = useState(null)
   const [statusText, setStatusText] = useState('')
   const [isRendering, setIsRendering] = useState(false)

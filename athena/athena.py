@@ -25,10 +25,12 @@ class RenderRequest(BaseModel):
 @app.post("/render")
 def handle_render(req: RenderRequest):
 
-    control_image_path = "C:/Users/kko8/OneDrive/projects/houdini_snippets/prod/3d/render/athena/ctr_images/05K_alehandro_canny.jpg"
+    # Definae images paths
+    control_image_path = "C:/Users/kko8/OneDrive/projects/houdini_snippets/prod/3d/render/athena/ctr_images/SDXL_alehandro_canny.jpg"
     filename = f"{secrets.token_urlsafe(6).upper()}.png"
     output_path = IMAGES_DIR / filename
 
+    # Run render
     render_time = render_image(req.prompt, req.steps, req.seed, str(output_path), control_image_path)
 
     return {"image_url": f"/images/{filename}", "image_path": str(output_path), "render_time": render_time}
