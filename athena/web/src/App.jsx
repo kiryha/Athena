@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 function App() {
-  const [prompt, setPrompt] = useState('Photorealistic portrait of a young athletic man. Photorealistic skin, wrinkles, sss, hairs, aging. Big face with teeth, nice smile, mouth of smile. Rough basic denim trousers. Lether shoes.')
+  const [prompt, setPrompt] = useState('Red apple with a green leaf on a plain background')
   const [negativePrompt, setNegativePrompt] = useState('')
   const [seed, setSeed] = useState(0)
   const [steps, setSteps] = useState(4)

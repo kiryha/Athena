@@ -30,8 +30,8 @@ class RenderRequest(BaseModel):
 def handle_render(req: RenderRequest):
 
     # Definae images paths
-    control_image_path = "C:/Users/kko8/OneDrive/projects/houdini_snippets/prod/3d/render/athena/ctr_images/SDXL_alehandro_canny.jpg"
-    filename = f"{secrets.token_urlsafe(6).upper()}.png"
+    control_image_path = "C:/Users/kko8/OneDrive/projects/houdini_snippets/prod/3d/render/athena/ctr_images/05K_apple_canny.jpg"
+    filename = f"{secrets.token_hex(4).upper()}.png"
     output_path = IMAGES_DIR / filename
 
     # Run render
