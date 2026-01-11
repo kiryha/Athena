@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from renderer import render_image
+import renderer
 
 app = FastAPI()
 
@@ -18,9 +18,11 @@ FRONTEND_DIR = Path(__file__).parent / "web" / "dist"
 
 class RenderRequest(BaseModel):
     prompt: str
+    negative_prompt: str = ""
     steps: int = 30
     seed: int = 0
     cfg: float = 2.1
+    sampler: str = "DPM++ 2M"
     controlnet_strength: float = 0.8
 
 
@@ -33,7 +35,17 @@ def handle_render(req: RenderRequest):
     output_path = IMAGES_DIR / filename
 
     # Run render
-    render_time = render_image(req.prompt, req.steps, req.seed, req.cfg, req.controlnet_strength, str(output_path), control_image_path)
+    render_time = renderer.render_image(
+        prompt=req.prompt,
+        negative_prompt=req.negative_prompt,
+        steps=req.steps,
+        seed=req.seed,
+        cfg=req.cfg,
+        sampler=req.sampler,
+        controlnet_strength=req.controlnet_strength,
+        output_path=str(output_path),
+        control_image_path=control_image_path
+    )
 
     return {"image_url": f"/images/{filename}", "image_path": str(output_path), "render_time": render_time}
 

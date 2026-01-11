@@ -25,9 +25,8 @@ body {
 }
 
 .image-panel img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  width: 100%;
+  height: auto;
 }
 
 .spinner {
@@ -58,12 +57,22 @@ body {
 }
 
 .controls textarea {
-  height: 100px;
   resize: vertical;
 }
 
+.controls textarea.prompt-positive {
+  height: 150px;
+  font-size: 0.75rem;
+}
+
+.controls textarea.prompt-negative {
+  height: 112px;
+  font-size: 0.75rem;
+}
+
 .controls input,
-.controls textarea {
+.controls textarea,
+.controls select {
   padding: 8px;
   border: 1px solid #444;
   border-radius: 4px;
