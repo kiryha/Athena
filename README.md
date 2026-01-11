@@ -1,6 +1,7 @@
 # Athena Pipeline: Research and Developmnet
 Generative AI content creation pipeline, images and video.
 
+![ControlNet Apple Example](athena/images/control_net_apple.jpg)
 
 # Learning: Stable Diffusion & Diffusion Models
 
