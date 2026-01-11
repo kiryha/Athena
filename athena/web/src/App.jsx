@@ -7,10 +7,19 @@ function App() {
   const [steps, setSteps] = useState(4)
   const [cfg, setCfg] = useState(2.1)
   const [sampler, setSampler] = useState('DPM++ 2M')
+  const [controlImagePath, setControlImagePath] = useState('C:/Users/kko8/OneDrive/projects/houdini_snippets/prod/3d/render/athena/ctr_images/05K_apple_canny.jpg')
   const [controlnetStrength, setControlnetStrength] = useState(0.8)
   const [imageUrl, setImageUrl] = useState(null)
   const [statusText, setStatusText] = useState('')
   const [isRendering, setIsRendering] = useState(false)
+
+  const handlePickFile = async () => {
+    const response = await fetch('/pick-file')
+    const data = await response.json()
+    if (data.path) {
+      setControlImagePath(data.path)
+    }
+  }
 
   const handleRender = async () => {
     setIsRendering(true)
@@ -18,7 +27,7 @@ function App() {
     const response = await fetch('/render', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, negative_prompt: negativePrompt, steps, seed, cfg, sampler, controlnet_strength: controlnetStrength })
+      body: JSON.stringify({ prompt, negative_prompt: negativePrompt, steps, seed, cfg, sampler, control_image_path: controlImagePath, controlnet_strength: controlnetStrength })
     })
     const data = await response.json()
     setImageUrl(data.image_url)
@@ -61,6 +70,13 @@ function App() {
             <option value="Euler">Euler</option>
             <option value="Euler A">Euler A</option>
           </select>
+        </label>
+        <label>
+          ControlNet Image
+          <div className="input-with-button">
+            <input type="text" value={controlImagePath} onChange={e => setControlImagePath(e.target.value)} />
+            <button type="button" className="pick-button" onClick={handlePickFile}>Pick</button>
+          </div>
         </label>
         <label>
           ControlNet Strength

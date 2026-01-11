@@ -101,6 +101,22 @@ body {
   background: #3a8eef;
 }
 
+.input-with-button {
+  display: flex;
+  gap: 8px;
+}
+
+.input-with-button input {
+  flex: 1;
+  font-size: 0.75rem;
+}
+
+.pick-button {
+  padding: 8px 12px !important;
+  margin-top: 0 !important;
+  flex-shrink: 0;
+}
+
 .status-line {
   margin-top: auto;
   padding-top: 16px;

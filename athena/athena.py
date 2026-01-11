@@ -3,6 +3,7 @@ FastAPI backend for Athena image generator
 """
 
 import secrets
+import threading
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -23,14 +24,14 @@ class RenderRequest(BaseModel):
     seed: int = 0
     cfg: float = 2.1
     sampler: str = "DPM++ 2M"
+    control_image_path: str = ""
     controlnet_strength: float = 0.8
 
 
 @app.post("/render")
 def handle_render(req: RenderRequest):
 
-    # Definae images paths
-    control_image_path = "C:/Users/kko8/OneDrive/projects/houdini_snippets/prod/3d/render/athena/ctr_images/05K_apple_canny.jpg"
+    # Define images paths
     filename = f"{secrets.token_hex(4).upper()}.png"
     output_path = IMAGES_DIR / filename
 
@@ -44,10 +45,40 @@ def handle_render(req: RenderRequest):
         sampler=req.sampler,
         controlnet_strength=req.controlnet_strength,
         output_path=str(output_path),
-        control_image_path=control_image_path
+        control_image_path=req.control_image_path if req.control_image_path else None
     )
 
     return {"image_url": f"/images/{filename}", "image_path": str(output_path), "render_time": render_time}
+
+
+@app.get("/pick-file")
+def pick_file():
+    """Open native file picker and return selected file path."""
+    import tkinter as tk
+    from tkinter import filedialog
+    
+    selected_path = []
+    
+    def run_dialog():
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)
+        file_path = filedialog.askopenfilename(
+            title="Select ControlNet Image",
+            filetypes=[
+                ("Image files", "*.jpg *.jpeg *.png *.bmp *.gif"),
+                ("All files", "*.*")
+            ]
+        )
+        selected_path.append(file_path)
+        root.destroy()
+    
+    # Run tkinter in main thread
+    thread = threading.Thread(target=run_dialog)
+    thread.start()
+    thread.join()
+    
+    return {"path": selected_path[0] if selected_path else ""}
 
 
 # Serve generated images

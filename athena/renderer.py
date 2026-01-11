@@ -39,7 +39,7 @@ width=512
 height=512
 
 
-# # Load MAIN pipeline
+# # Load SD pipeline (no controlnet)
 # pipeline = StableDiffusionPipeline.from_single_file(MODEL_PATH, torch_dtype=torch.float16)
 # pipeline.to("cuda")
 
