@@ -5,6 +5,17 @@ Image renderer using Stable Diffusion
 # MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/juggernautXL_juggXIByRundiffusion.safetensors"
 # Use StableDiffusionXLPipeline for SDXL models (juggernautXL_juggXIByRundiffusion.safetensors)
 # Use StableDiffusionPipeline for SD 1.5 models (v1-5-pruned-emaonly-fp16.safetensors)
+
+Read Metadata
+from PIL import Image
+img = Image.open("output.png")
+metadata = img.info.get("RenderRequest")  # Returns JSON string
+
+Debug
+print("---------------------------------")
+print(torch.cuda.is_available(), torch.cuda.get_device_name(0))
+print(next(controlnet_pipeline.unet.parameters()).device)
+print("---------------------------------")
 """
 
 import time
@@ -15,6 +26,8 @@ from diffusers import (
     ControlNetModel, DPMSolverMultistepScheduler, DPMSolverSinglestepScheduler,
     EulerDiscreteScheduler, EulerAncestralDiscreteScheduler)
 from PIL import Image
+from PIL.PngImagePlugin import PngInfo
+import json
 
 MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/v1-5-pruned-emaonly-fp16.safetensors" # SD1.5
 # MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/juggernautXL_juggXIByRundiffusion.safetensors" # SDXL
@@ -40,10 +53,6 @@ controlnet_pipeline.enable_attention_slicing()
 controlnet_pipeline.enable_vae_slicing()
 # controlnet_pipeline.enable_xformers_memory_efficient_attention()
 
-print("---------------------------------")
-print(torch.cuda.is_available(), torch.cuda.get_device_name(0))
-print(next(controlnet_pipeline.unet.parameters()).device)
-print("---------------------------------")
 
 def get_scheduler(pipe, sampler_name: str):
     """Configure scheduler based on sampler name."""
@@ -110,8 +119,20 @@ def render_image(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
             width=width,
             height=height).images[0]
     
-    # Save image
-    image.save(output_path)
+    # Save image with metadata
+    metadata = PngInfo()
+    render_request = {
+        "prompt": prompt,
+        "negative_prompt": negative_prompt,
+        "steps": steps,
+        "seed": seed,
+        "cfg": cfg,
+        "sampler": sampler,
+        "controlnet_strength": controlnet_strength,
+        "control_image_path": control_image_path
+    }
+    metadata.add_text("RenderRequest", json.dumps(render_request))
+    image.save(output_path, pnginfo=metadata)
     
     # Measure render time and format as MM:SS
     render_time = time.perf_counter() - start_time
