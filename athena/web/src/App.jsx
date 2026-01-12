@@ -1,6 +1,9 @@
 import { useState } from 'react'
 
 function App() {
+  const [activeTab, setActiveTab] = useState('image')
+  
+  // Image tab state
   const [prompt, setPrompt] = useState('Red apple with a green leaf on a plain background')
   const [negativePrompt, setNegativePrompt] = useState('')
   const [seed, setSeed] = useState(0)
@@ -12,6 +15,9 @@ function App() {
   const [imageUrl, setImageUrl] = useState(null)
   const [statusText, setStatusText] = useState('')
   const [isRendering, setIsRendering] = useState(false)
+  
+  // Video tab state
+  const [videoPrompt, setVideoPrompt] = useState('')
 
   const handlePickFile = async () => {
     const response = await fetch('/pick-file')
@@ -41,51 +47,82 @@ function App() {
         {imageUrl && <img src={imageUrl} alt="Generated" />}
       </div>
       <div className="controls">
-        <label>
-          Positive Prompt
-          <textarea className="prompt-positive" value={prompt} onChange={e => setPrompt(e.target.value)} />
-        </label>
-        <label>
-          Negative Prompt
-          <textarea className="prompt-negative" value={negativePrompt} onChange={e => setNegativePrompt(e.target.value)} />
-        </label>
-        <label>
-          Seed
-          <input type="number" value={seed} onChange={e => setSeed(Number(e.target.value))} />
-        </label>
-        <label>
-          Steps
-          <input type="number" value={steps} onChange={e => setSteps(Number(e.target.value))} />
-        </label>
-        <label>
-          CFG
-          <input type="number" step="0.1" value={cfg} onChange={e => setCfg(Number(e.target.value))} />
-        </label>
-        <label>
-          Sampler
-          <select value={sampler} onChange={e => setSampler(e.target.value)}>
-            <option value="DPM++ 2M">DPM++ 2M</option>
-            <option value="DPM++ 2M SDE">DPM++ 2M SDE</option>
-            <option value="DPM++ 2S a">DPM++ 2S a</option>
-            <option value="Euler">Euler</option>
-            <option value="Euler A">Euler A</option>
-          </select>
-        </label>
-        <label>
-          ControlNet Image
-          <div className="input-with-button">
-            <input type="text" value={controlImagePath} onChange={e => setControlImagePath(e.target.value)} />
-            <button type="button" className="pick-button" onClick={handlePickFile}>Pick</button>
+        <div className="tabs">
+          <button 
+            className={`tab ${activeTab === 'image' ? 'active' : ''}`}
+            onClick={() => setActiveTab('image')}
+          >
+            Image
+          </button>
+          <button 
+            className={`tab ${activeTab === 'video' ? 'active' : ''}`}
+            onClick={() => setActiveTab('video')}
+          >
+            Video
+          </button>
+        </div>
+        
+        {activeTab === 'image' && (
+          <div className="tab-content">
+            <label>
+              Positive Prompt
+              <textarea className="prompt-positive" value={prompt} onChange={e => setPrompt(e.target.value)} />
+            </label>
+            <label>
+              Negative Prompt
+              <textarea className="prompt-negative" value={negativePrompt} onChange={e => setNegativePrompt(e.target.value)} />
+            </label>
+            <label>
+              Seed
+              <input type="number" value={seed} onChange={e => setSeed(Number(e.target.value))} />
+            </label>
+            <label>
+              Steps
+              <input type="number" value={steps} onChange={e => setSteps(Number(e.target.value))} />
+            </label>
+            <label>
+              CFG
+              <input type="number" step="0.1" value={cfg} onChange={e => setCfg(Number(e.target.value))} />
+            </label>
+            <label>
+              Sampler
+              <select value={sampler} onChange={e => setSampler(e.target.value)}>
+                <option value="DPM++ 2M">DPM++ 2M</option>
+                <option value="DPM++ 2M SDE">DPM++ 2M SDE</option>
+                <option value="DPM++ 2S a">DPM++ 2S a</option>
+                <option value="Euler">Euler</option>
+                <option value="Euler A">Euler A</option>
+              </select>
+            </label>
+            <label>
+              ControlNet Image
+              <div className="input-with-button">
+                <input type="text" value={controlImagePath} onChange={e => setControlImagePath(e.target.value)} />
+                <button type="button" className="pick-button" onClick={handlePickFile}>Pick</button>
+              </div>
+            </label>
+            <label>
+              ControlNet Strength
+              <input type="number" step="0.1" value={controlnetStrength} onChange={e => setControlnetStrength(Number(e.target.value))} />
+            </label>
+            <button onClick={handleRender} disabled={isRendering}>
+              Render
+            </button>
+            <div className="status-line">{statusText}</div>
           </div>
-        </label>
-        <label>
-          ControlNet Strength
-          <input type="number" step="0.1" value={controlnetStrength} onChange={e => setControlnetStrength(Number(e.target.value))} />
-        </label>
-        <button onClick={handleRender} disabled={isRendering}>
-          Render
-        </button>
-        <div className="status-line">{statusText}</div>
+        )}
+        
+        {activeTab === 'video' && (
+          <div className="tab-content">
+            <label>
+              Prompt
+              <textarea className="prompt-positive" value={videoPrompt} onChange={e => setVideoPrompt(e.target.value)} />
+            </label>
+            <button onClick={() => alert('Video rendering not implemented yet')}>
+              Render
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

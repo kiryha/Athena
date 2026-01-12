@@ -43,6 +43,39 @@ body {
   gap: 16px;
 }
 
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 16px !important;
+  background: #333 !important;
+  border: 1px solid #444 !important;
+  color: #888;
+  cursor: pointer;
+  margin-top: 0 !important;
+}
+
+.tab.active {
+  background: #4a9eff !important;
+  border-color: #4a9eff !important;
+  color: #fff;
+}
+
+.tab:hover:not(.active) {
+  background: #3a3a3a !important;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
 .controls h1 {
   font-size: 1.5rem;
   margin-bottom: 8px;
