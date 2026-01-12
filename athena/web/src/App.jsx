@@ -18,6 +18,14 @@ function App() {
   
   // Video tab state
   const [videoPrompt, setVideoPrompt] = useState('')
+  const [videoNegativePrompt, setVideoNegativePrompt] = useState('')
+  const [videoSeed, setVideoSeed] = useState(0)
+  const [videoSteps, setVideoSteps] = useState(20)
+  const [videoCfg, setVideoCfg] = useState(7.5)
+  const [videoFrames, setVideoFrames] = useState(24)
+  const [videoFps, setVideoFps] = useState(8)
+  const [videoStatusText, setVideoStatusText] = useState('')
+  const [isVideoRendering, setIsVideoRendering] = useState(false)
 
   const handlePickFile = async () => {
     const response = await fetch('/pick-file')
@@ -27,10 +35,31 @@ function App() {
     }
   }
 
+  const handleVideoRender = async () => {
+    setIsVideoRendering(true)
+    setVideoStatusText('Rendering video...')
+    const response = await fetch('/render-video', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: videoPrompt,
+        negative_prompt: videoNegativePrompt,
+        steps: videoSteps,
+        seed: videoSeed,
+        cfg: videoCfg,
+        frames: videoFrames,
+        fps: videoFps
+      })
+    })
+    const data = await response.json()
+    setVideoStatusText(`${data.render_time} >> ${data.video_path}`)
+    setIsVideoRendering(false)
+  }
+
   const handleRender = async () => {
     setIsRendering(true)
     setStatusText('Rendering...')
-    const response = await fetch('/render', {
+    const response = await fetch('/render-image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt, negative_prompt: negativePrompt, steps, seed, cfg, sampler, control_image_path: controlImagePath, controlnet_strength: controlnetStrength })
@@ -115,12 +144,37 @@ function App() {
         {activeTab === 'video' && (
           <div className="tab-content">
             <label>
-              Prompt
+              Positive Prompt
               <textarea className="prompt-positive" value={videoPrompt} onChange={e => setVideoPrompt(e.target.value)} />
             </label>
-            <button onClick={() => alert('Video rendering not implemented yet')}>
+            <label>
+              Negative Prompt
+              <textarea className="prompt-negative" value={videoNegativePrompt} onChange={e => setVideoNegativePrompt(e.target.value)} />
+            </label>
+            <label>
+              Seed
+              <input type="number" value={videoSeed} onChange={e => setVideoSeed(Number(e.target.value))} />
+            </label>
+            <label>
+              Steps
+              <input type="number" value={videoSteps} onChange={e => setVideoSteps(Number(e.target.value))} />
+            </label>
+            <label>
+              CFG
+              <input type="number" step="0.1" value={videoCfg} onChange={e => setVideoCfg(Number(e.target.value))} />
+            </label>
+            <label>
+              Frames
+              <input type="number" value={videoFrames} onChange={e => setVideoFrames(Number(e.target.value))} />
+            </label>
+            <label>
+              FPS
+              <input type="number" value={videoFps} onChange={e => setVideoFps(Number(e.target.value))} />
+            </label>
+            <button onClick={handleVideoRender} disabled={isVideoRendering}>
               Render
             </button>
+            <div className="status-line">{videoStatusText}</div>
           </div>
         )}
       </div>

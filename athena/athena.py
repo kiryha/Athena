@@ -17,7 +17,7 @@ IMAGES_DIR = Path("E:/images")
 FRONTEND_DIR = Path(__file__).parent / "web" / "dist"
 
 
-class RenderRequest(BaseModel):
+class ImageRenderRequest(BaseModel):
     prompt: str
     negative_prompt: str = ""
     steps: int = 30
@@ -28,8 +28,18 @@ class RenderRequest(BaseModel):
     controlnet_strength: float = 0.8
 
 
-@app.post("/render")
-def handle_render(req: RenderRequest):
+class VideoRenderRequest(BaseModel):
+    prompt: str
+    negative_prompt: str = ""
+    steps: int = 20
+    seed: int = 0
+    cfg: float = 7.5
+    frames: int = 24
+    fps: int = 8
+
+
+@app.post("/render-image")
+def handle_image_render(req: ImageRenderRequest):
 
     # Define images paths
     filename = f"{secrets.token_hex(4).upper()}.png"
@@ -49,6 +59,25 @@ def handle_render(req: RenderRequest):
     )
 
     return {"image_url": f"/images/{filename}", "image_path": str(output_path), "render_time": render_time}
+
+
+@app.post("/render-video")
+def handle_video_render(req: VideoRenderRequest):
+    filename = f"{secrets.token_hex(4).upper()}.mp4"
+    output_path = IMAGES_DIR / filename
+    
+    render_time = renderer.render_video(
+        prompt=req.prompt,
+        negative_prompt=req.negative_prompt,
+        steps=req.steps,
+        seed=req.seed,
+        cfg=req.cfg,
+        frames=req.frames,
+        fps=req.fps,
+        output_path=str(output_path)
+    )
+    
+    return {"video_url": f"/images/{filename}", "video_path": str(output_path), "render_time": render_time}
 
 
 @app.get("/pick-file")

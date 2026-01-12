@@ -25,6 +25,8 @@ from diffusers import (
     StableDiffusionControlNetPipeline, StableDiffusionXLControlNetPipeline,
     ControlNetModel, DPMSolverMultistepScheduler, DPMSolverSinglestepScheduler,
     EulerDiscreteScheduler, EulerAncestralDiscreteScheduler)
+from diffusers import LTXPipeline
+from diffusers.utils import export_to_video
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 import json
@@ -35,23 +37,66 @@ MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/v1
 CONTROLNET_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/controlnet/control_v11p_sd15_scribble_fp16.safetensors" # SD1.5
 # CONTROLNET_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/controlnet/diffusion_pytorch_model_canny.fp16.safetensors" # SDXL
 
+VIDEO_MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/ltx219BNextGenAIVideo_ltx2DISTILLEDFP8VER.safetensors"
+
 width=512
 height=512
 
+# Lazy-loaded pipelines (memory efficient)
+current_pipeline = None
+current_type = None
+current_has_controlnet = None
 
-# # Load SD pipeline (no controlnet)
-# pipeline = StableDiffusionPipeline.from_single_file(MODEL_PATH, torch_dtype=torch.float16)
-# pipeline.to("cuda")
 
-# Load ControlNet pipeline
-controlnet = ControlNetModel.from_single_file(CONTROLNET_PATH, torch_dtype=torch.float16)
-controlnet_pipeline = StableDiffusionControlNetPipeline.from_single_file(
-    MODEL_PATH, controlnet=controlnet, torch_dtype=torch.float16)
-controlnet_pipeline.to("cuda")
+def get_image_pipeline(with_controlnet: bool = False):
+    """
+    Load image pipeline, clearing video pipeline if loaded.
+    If with_controlnet is True, use it to create the controlnet image.
+    """
 
-controlnet_pipeline.enable_attention_slicing()
-controlnet_pipeline.enable_vae_slicing()
-# controlnet_pipeline.enable_xformers_memory_efficient_attention()
+    global current_pipeline, current_type, current_has_controlnet
+
+    # Reload if switching pipeline type OR if controlnet requirement changed
+    if current_type != "image" or current_has_controlnet != with_controlnet:
+        if current_pipeline:
+            del current_pipeline
+            torch.cuda.empty_cache()
+
+        if with_controlnet:
+            print(">> Loading controlnet pipeline")
+            controlnet = ControlNetModel.from_single_file(CONTROLNET_PATH, torch_dtype=torch.float16)
+            current_pipeline = StableDiffusionControlNetPipeline.from_single_file(
+                MODEL_PATH, controlnet=controlnet, torch_dtype=torch.float16)
+        else:  
+            print(">> Loading image pipeline")
+            current_pipeline = StableDiffusionPipeline.from_single_file(MODEL_PATH, torch_dtype=torch.float16)  
+
+        current_pipeline.to("cuda")
+        current_pipeline.enable_attention_slicing()
+        current_pipeline.vae.enable_slicing()
+        current_type = "image"
+        current_has_controlnet = with_controlnet
+
+    return current_pipeline
+
+
+def get_video_pipeline():
+    """
+    Load video pipeline, clearing image pipeline if loaded
+    """
+
+    global current_pipeline, current_type, current_has_controlnet
+    
+    if current_type != "video":
+        if current_pipeline:
+            del current_pipeline
+            torch.cuda.empty_cache()
+        current_pipeline = LTXPipeline.from_single_file(VIDEO_MODEL_PATH, torch_dtype=torch.bfloat16)
+        current_pipeline.to("cuda")
+        current_type = "video"
+        current_has_controlnet = None
+        
+    return current_pipeline
 
 
 def get_scheduler(pipe, sampler_name: str):
@@ -85,7 +130,8 @@ def get_scheduler(pipe, sampler_name: str):
 def render_image(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: float,
                  sampler: str, controlnet_strength: float, output_path: str,
                  control_image_path: str = None):
-    
+
+
     # Measure render time
     start_time = time.perf_counter()
 
@@ -93,11 +139,13 @@ def render_image(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
     generator = torch.Generator(device="cuda").manual_seed(seed)
     
     # Render image
+    pipe = get_image_pipeline(bool(control_image_path))
+    pipe.scheduler = get_scheduler(pipe, sampler)
+    
+    # Render with controlnet
     if control_image_path:
         control_image = Image.open(control_image_path).convert("RGB")
-        # Set scheduler
-        controlnet_pipeline.scheduler = get_scheduler(controlnet_pipeline, sampler)
-        image = controlnet_pipeline(
+        image = pipe(
             prompt=prompt,
             negative_prompt=negative_prompt if negative_prompt else None,
             image=control_image,
@@ -107,10 +155,10 @@ def render_image(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
             guidance_scale=cfg,
             width=width,
             height=height).images[0]
+
+    # Render without controlnet
     else:
-        # Set scheduler
-        pipeline.scheduler = get_scheduler(pipeline, sampler)
-        image = pipeline(
+        image = pipe(
             prompt=prompt,
             negative_prompt=negative_prompt if negative_prompt else None,
             num_inference_steps=steps,
@@ -139,3 +187,29 @@ def render_image(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
     minutes = int(render_time // 60)
     seconds = int(render_time % 60)
     return f"{minutes:02d}:{seconds:02d}"
+
+
+def render_video(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: float,
+                 frames: int, fps: int, output_path: str):
+    """
+    Render video using LTX Video model
+    """
+
+    
+    start_time = time.perf_counter()
+    generator = torch.Generator(device="cuda").manual_seed(seed)
+    
+    pipe = get_video_pipeline()
+    video = pipe(
+        prompt=prompt,
+        negative_prompt=negative_prompt if negative_prompt else None,
+        num_inference_steps=steps,
+        guidance_scale=cfg,
+        num_frames=frames,
+        generator=generator
+    ).frames[0]
+    
+    export_to_video(video, output_path, fps=fps)
+    
+    render_time = time.perf_counter() - start_time
+    return f"{int(render_time // 60):02d}:{int(render_time % 60):02d}"
