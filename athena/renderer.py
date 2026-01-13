@@ -21,6 +21,7 @@ print("---------------------------------")
 
 import time
 import torch
+import gc 
 from diffusers import (
     StableDiffusionPipeline, StableDiffusionXLPipeline,
     StableDiffusionControlNetPipeline, StableDiffusionXLControlNetPipeline,
@@ -61,6 +62,7 @@ def get_image_pipeline(with_controlnet: bool = False):
     if current_type != "image" or current_has_controlnet != with_controlnet:
         if current_pipeline:
             del current_pipeline
+            gc.collect() # <--- ADDED: Force RAM cleanup
             torch.cuda.empty_cache()
 
         if with_controlnet:
@@ -91,6 +93,7 @@ def get_video_pipeline():
     if current_type != "video":
         if current_pipeline:
             del current_pipeline
+            gc.collect() # <--- ADDED: Force RAM cleanup
             torch.cuda.empty_cache()
         
         print(">> Loading CogVideoX pipeline")
@@ -131,7 +134,7 @@ def get_scheduler(pipe, sampler_name: str):
     
     elif sampler_name == "Euler A":
         return EulerAncestralDiscreteScheduler.from_config(config)
-   
+    
     else:
         # Default to DPM++ 2M
         return DPMSolverMultistepScheduler.from_config(
