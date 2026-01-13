@@ -1,6 +1,7 @@
 """
 Image renderer using Stable Diffusion
 
+pip install diffusers transformers accelerate torchao
 
 # MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/juggernautXL_juggXIByRundiffusion.safetensors"
 # Use StableDiffusionXLPipeline for SDXL models (juggernautXL_juggXIByRundiffusion.safetensors)
@@ -42,7 +43,7 @@ VIDEO_MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoi
 width=512
 height=512
 
-# Lazy-loaded pipelines (memory efficient)
+# Lazy-loaded pipelines
 current_pipeline = None
 current_type = None
 current_has_controlnet = None
@@ -91,7 +92,10 @@ def get_video_pipeline():
         if current_pipeline:
             del current_pipeline
             torch.cuda.empty_cache()
+        
+        # Load video pipeline
         current_pipeline = LTXPipeline.from_single_file(VIDEO_MODEL_PATH, torch_dtype=torch.bfloat16)
+
         current_pipeline.to("cuda")
         current_type = "video"
         current_has_controlnet = None
@@ -100,7 +104,10 @@ def get_video_pipeline():
 
 
 def get_scheduler(pipe, sampler_name: str):
-    """Configure scheduler based on sampler name."""
+    """
+    Set samlper based on sampler name
+    """
+
     config = pipe.scheduler.config
     
     if sampler_name == "DPM++ 2M":
@@ -195,11 +202,11 @@ def render_video(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
     Render video using LTX Video model
     """
 
-    
     start_time = time.perf_counter()
     generator = torch.Generator(device="cuda").manual_seed(seed)
     
     pipe = get_video_pipeline()
+
     video = pipe(
         prompt=prompt,
         negative_prompt=negative_prompt if negative_prompt else None,
@@ -208,7 +215,7 @@ def render_video(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
         num_frames=frames,
         generator=generator
     ).frames[0]
-    
+
     export_to_video(video, output_path, fps=fps)
     
     render_time = time.perf_counter() - start_time
