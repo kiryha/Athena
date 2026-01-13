@@ -25,8 +25,8 @@ from diffusers import (
     StableDiffusionPipeline, StableDiffusionXLPipeline,
     StableDiffusionControlNetPipeline, StableDiffusionXLControlNetPipeline,
     ControlNetModel, DPMSolverMultistepScheduler, DPMSolverSinglestepScheduler,
-    EulerDiscreteScheduler, EulerAncestralDiscreteScheduler)
-from diffusers import LTXPipeline
+    EulerDiscreteScheduler, EulerAncestralDiscreteScheduler,
+    CogVideoXPipeline)
 from diffusers.utils import export_to_video
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
@@ -38,7 +38,7 @@ MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/v1
 CONTROLNET_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/controlnet/control_v11p_sd15_scribble_fp16.safetensors" # SD1.5
 # CONTROLNET_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/controlnet/diffusion_pytorch_model_canny.fp16.safetensors" # SDXL
 
-VIDEO_MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/ltx219BNextGenAIVideo_ltx2DISTILLEDFP8VER.safetensors"
+VIDEO_MODEL_PATH = "E:/Models/CogVideoX-2b"
 
 width=512
 height=512
@@ -93,10 +93,14 @@ def get_video_pipeline():
             del current_pipeline
             torch.cuda.empty_cache()
         
-        # Load video pipeline
-        current_pipeline = LTXPipeline.from_single_file(VIDEO_MODEL_PATH, torch_dtype=torch.bfloat16)
+        print(">> Loading CogVideoX pipeline")
+        current_pipeline = CogVideoXPipeline.from_pretrained(VIDEO_MODEL_PATH, torch_dtype=torch.float16)
 
-        current_pipeline.to("cuda")
+        # Optimizations for 6GB GPU
+        current_pipeline.enable_sequential_cpu_offload()
+        current_pipeline.vae.enable_slicing()
+        current_pipeline.vae.enable_tiling()
+
         current_type = "video"
         current_has_controlnet = None
         
@@ -199,7 +203,7 @@ def render_image(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
 def render_video(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: float,
                  frames: int, fps: int, output_path: str):
     """
-    Render video using LTX Video model
+    Render video using CogVideoX model
     """
 
     start_time = time.perf_counter()
@@ -207,12 +211,15 @@ def render_video(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
     
     pipe = get_video_pipeline()
 
+    # Fixed resolution 720x480 required for CogVideoX-2b
     video = pipe(
         prompt=prompt,
         negative_prompt=negative_prompt if negative_prompt else None,
         num_inference_steps=steps,
         guidance_scale=cfg,
         num_frames=frames,
+        height=480,
+        width=720,
         generator=generator
     ).frames[0]
 
