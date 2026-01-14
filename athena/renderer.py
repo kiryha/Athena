@@ -1,7 +1,11 @@
 """
 Image renderer using Stable Diffusion
 
-pip install diffusers transformers accelerate torchao
+pip install diffusers transformers accelerate torchao sentencepiece imageio-ffmpeg
+
+Models
+- images/control-net: https://huggingface.co/Comfy-Org/stable-diffusion-v1-5-archive/blob/main/v1-5-pruned-emaonly-fp16.safetensors
+- video: https://huggingface.co/THUDM/CogVideoX-2b
 
 # MODEL_PATH = "E:/Projects/ComfyUI_windows_portable/ComfyUI/models/checkpoints/juggernautXL_juggXIByRundiffusion.safetensors"
 # Use StableDiffusionXLPipeline for SDXL models (juggernautXL_juggXIByRundiffusion.safetensors)
@@ -213,6 +217,10 @@ def render_video(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
     generator = torch.Generator(device="cuda").manual_seed(seed)
     
     pipe = get_video_pipeline()
+    
+    # DPM++ scheduler for video
+    pipe.scheduler = DPMSolverMultistepScheduler.from_config(
+        pipe.scheduler.config, algorithm_type="dpmsolver++", use_karras_sigmas=True)
 
     # Fixed resolution 720x480 required for CogVideoX-2b
     video = pipe(

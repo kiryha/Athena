@@ -4,3 +4,5 @@ torch
 diffusers
 transformers
 accelerate
+sentencepiece
+imageio-ffmpeg

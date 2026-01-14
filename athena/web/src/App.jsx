@@ -17,12 +17,12 @@ function App() {
   const [isRendering, setIsRendering] = useState(false)
   
   // Video tab state
-  const [videoPrompt, setVideoPrompt] = useState('')
+  const [videoPrompt, setVideoPrompt] = useState('Train arrives at the station')
   const [videoNegativePrompt, setVideoNegativePrompt] = useState('')
   const [videoSeed, setVideoSeed] = useState(0)
   const [videoSteps, setVideoSteps] = useState(20)
-  const [videoCfg, setVideoCfg] = useState(7.5)
-  const [videoFrames, setVideoFrames] = useState(24)
+  const [videoCfg, setVideoCfg] = useState(6)
+  const [videoFrames, setVideoFrames] = useState(16)
   const [videoFps, setVideoFps] = useState(8)
   const [videoStatusText, setVideoStatusText] = useState('')
   const [isVideoRendering, setIsVideoRendering] = useState(false)
