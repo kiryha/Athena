@@ -24,6 +24,7 @@ function App() {
   const [videoCfg, setVideoCfg] = useState(6)
   const [videoFrames, setVideoFrames] = useState(16)
   const [videoFps, setVideoFps] = useState(8)
+  const [videoUrl, setVideoUrl] = useState(null)
   const [videoStatusText, setVideoStatusText] = useState('')
   const [isVideoRendering, setIsVideoRendering] = useState(false)
 
@@ -52,6 +53,7 @@ function App() {
       })
     })
     const data = await response.json()
+    setVideoUrl(data.video_url)
     setVideoStatusText(`${data.render_time} >> ${data.video_path}`)
     setIsVideoRendering(false)
   }
@@ -73,7 +75,12 @@ function App() {
   return (
     <div className="app">
       <div className="image-panel">
-        {imageUrl && <img src={imageUrl} alt="Generated" />}
+        {activeTab === 'image' && imageUrl && <img src={imageUrl} alt="Generated" />}
+        {activeTab === 'video' && videoUrl && (
+          <video key={videoUrl} controls autoPlay loop>
+            <source src={videoUrl} type="video/mp4" />
+          </video>
+        )}
       </div>
       <div className="controls">
         <div className="tabs">

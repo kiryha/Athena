@@ -29,6 +29,12 @@ body {
   height: 100%;
 }
 
+.image-panel video {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
 .spinner {
   color: #888;
   font-size: 1.5rem;
