@@ -224,15 +224,16 @@ def render_video(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
 
     # Fixed resolution 720x480 required for CogVideoX-2b
     video = pipe(
-        prompt=prompt,
-        negative_prompt=negative_prompt if negative_prompt else None,
-        num_inference_steps=steps,
-        guidance_scale=cfg,
-        num_frames=frames,
-        height=480,
-        width=720,
-        generator=generator
+    prompt="A car driving forward on a road, daytime, realistic cinematic video. "
+           "Camera follows behind the car, smooth stable motion, detailed environment, sharp focus.",
+    num_inference_steps=50,
+    guidance_scale=6,
+    num_frames=16,
+    height=480,
+    width=720,
+    generator=generator
     ).frames[0]
+
 
     export_to_video(video, output_path, fps=fps)
     
