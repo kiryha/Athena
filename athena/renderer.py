@@ -217,20 +217,15 @@ def render_video(prompt: str, negative_prompt: str, steps: int, seed: int, cfg: 
     generator = torch.Generator(device="cuda").manual_seed(seed)
     
     pipe = get_video_pipeline()
-    
-    # DPM++ scheduler for video
-    pipe.scheduler = DPMSolverMultistepScheduler.from_config(
-        pipe.scheduler.config, algorithm_type="dpmsolver++", use_karras_sigmas=True)
 
     # Fixed resolution 720x480 required for CogVideoX-2b
     video = pipe(
-    prompt="A car driving forward on a road, daytime, realistic cinematic video. "
-           "Camera follows behind the car, smooth stable motion, detailed environment, sharp focus.",
-    num_inference_steps=50,
-    guidance_scale=6,
-    num_frames=16,
-    height=480,
-    width=720,
+    prompt=prompt,
+    num_inference_steps=steps,
+    guidance_scale=cfg,
+    num_frames=frames,
+    height=height,
+    width=width,
     generator=generator
     ).frames[0]
 

@@ -17,12 +17,12 @@ function App() {
   const [isRendering, setIsRendering] = useState(false)
   
   // Video tab state
-  const [videoPrompt, setVideoPrompt] = useState('Train arrives at the station')
+  const [videoPrompt, setVideoPrompt] = useState('photorealistic red apple, single apple centered, rich deep red skin, subtle natural imperfections, fresh green leaf attached to stem, tiny water droplets on surface, macro photography, shallow depth of field, cinematic studio lighting, soft diffused key light, deep shadows, dark studio background, high contrast, ultra detailed texture, realistic reflections, professional food photography')
   const [videoNegativePrompt, setVideoNegativePrompt] = useState('')
   const [videoSeed, setVideoSeed] = useState(0)
-  const [videoSteps, setVideoSteps] = useState(20)
+  const [videoSteps, setVideoSteps] = useState(40)
   const [videoCfg, setVideoCfg] = useState(6)
-  const [videoFrames, setVideoFrames] = useState(16)
+  const [videoFrames, setVideoFrames] = useState(8)
   const [videoFps, setVideoFps] = useState(8)
   const [videoUrl, setVideoUrl] = useState(null)
   const [videoStatusText, setVideoStatusText] = useState('')
