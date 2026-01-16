@@ -3,6 +3,12 @@ Generative AI content creation pipeline, images and video.
 
 ![ControlNet Apple Example](images/control_net_apple.jpg)
 
+Current state: the backbone. We have web interface for python renderer to generate images and video. 
+Having limited harware we utilize old robust Stable Diffusion 1.5 model for images and CogVideoX 2b for video.
+This does not produce any interesting visuals but the goal is to learn the generative pipeline.
+
+![](images/athena_ui.jpg)
+
 # Learning: Stable Diffusion & Diffusion Models
 
 This curated learning path will take you from foundational concepts in neural networks and transformers, through the internals of diffusion models, up to practical model inference and building systems like **ComfyUI**.
