@@ -11,24 +11,40 @@ This does not produce any interesting visuals but the goal is to learn the gener
 # Google Pipeline: Nano Banana and Veo3.1
 
 ## Workflow Overview
-Pipeline Strategy: "Asset-Based" Generation
-To get the control, stop treating these models as "generators" and treat them as **simulators**. You need to build a pipeline that separates Assets from Shots.
+**Pipeline Strategy:** "Bake & Feed"
+Stop treating Veo as a *compositor*. Use the Image Model to build the world (Bake), and the Video Model only to move it (Feed).
 
 ### Phase 1: Asset Generation (Nano Banana)
-Do not try to generate "The final shot." Generate the assets first.
+Generate the raw ingredients. Do not rely on one image per asset.
 
-- Character Sheet: Generate your character in a T-pose or neutral pose against a white background.  
-Why: You need a clean "Source of Truth" image for Veo's reference input.
+* **Character Kit:**
+    * **Identity Truth:** Medium shot, 3/4 view (Face detail).
+    * **Anatomy Truth:** Full body T-pose/A-pose (Proportions & Costume).
+    * **Texture Truth:** Close-up action shot (Lighting & Material).
+* **Location Kit:**
+    * **Master Wide:** Establishing shot of the empty environment.
+    * **Reverse Angle:** 180° view for dialogue coverage.
+    * **Canny Layout:** Simple 3D blockout renders (edges) to force perspective if needed.
 
-- Environment Plates: Generate your backgrounds as wide 16:9 or panoramic images without the character.  
-Why: Veo needs to know what the world looks like before the character blocks the view.
+### Phase 2: The "Bake" (Pre-Composition)
+**Goal:** Create the perfect "Shot 0" using Nano Banana's 14-image context window.
 
-### Phase 2: Shot Assembly (The "Sandwich" Technique)
-This is the hidden technique for precise control in Veo 3.1.
+* **Action:** Feed your **Character Kit** + **Location Kit** + **Props** into Nano Banana.
+* **Prompt:** Define the exact composition (e.g., "Character A standing left, holding prop, inside Location B").
+* **Output:** A high-fidelity **Master Keyframe** where all subjects are already correctly placed and lit.
 
-- Input 1 (Context): Your Environment Image.
-- Input 2 (Subject): Your Character Reference Image.
-- Input 3 (Prompt): The motion description.
+### Phase 3: Shot Simulation (Veo 3.1)
+**Goal:** Animate the Master Keyframe. Use "Ingredients to Video" mode.
 
+* **Input 1 (The Anchor):** Your **Master Keyframe** (from Phase 2).
+    * *Role:* Sets the scene, lighting, and starting position.
+* **Input 2 (The Passport):** Your **Character Identity Truth** (Face crop).
+    * *Role:* Forces the model to maintain facial likeness during movement.
+* **Prompt:** Describe the **motion only** (e.g., "Camera pushes in, character turns head"). Do not describe objects or colors; they are already in the image.
+
+### Phase 4: Audio (Decoupled)
+* **Voice:** Generate consistent dialogue in Vertex AI / ElevenLabs.
+* **Performance:** Generate video in Veo with neutral or generic talking motion.
+* **Sync:** Use an external Lip Sync model (e.g., SyncLabs) to merge the audio and video in post.
 
 
